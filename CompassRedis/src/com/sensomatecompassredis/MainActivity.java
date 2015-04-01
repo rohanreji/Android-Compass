@@ -5,6 +5,7 @@ import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -18,6 +19,7 @@ import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.RotateAnimation;
 import android.widget.EditText;
@@ -200,7 +202,7 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
                     Animation.RELATIVE_TO_SELF, 0.5f,
                     Animation.RELATIVE_TO_SELF,
                     0.5f);
-            Log.e("value to server",  azimuthInDegress + " ");
+           
             ra.setDuration(250);
 
             ra.setFillAfter(true);
@@ -268,23 +270,26 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
         String JEDIS_SERVER = PreferenceManager
                 .getDefaultSharedPreferences(MainActivity.this)
                 .getString("MYIP", IP).toString();
+    
+       
         String JEDIS_CHANNEL = PreferenceManager
                 .getDefaultSharedPreferences(MainActivity.this)
                 .getString("MYCHANNEL", CHANNEL).toString();
 
         private void setupPublisher() {
             try {
+            	 
                 if(JEDIS_SERVER.contains(":")){
                     String s[]=new String[2];
                     s=JEDIS_SERVER.split(":");
                     JEDIS_SERVER=s[0];
                     //  Toast.makeText(getApplicationContext(),JEDIS_SERVER,Toast.LENGTH_SHORT).show();
-                    Log.e("server redis",JEDIS_SERVER);
+                   
                 }
 
                 System.out.println("Connecting");
                 System.out.println(JEDIS_SERVER);
-                Jedis jedis = new Jedis(JEDIS_SERVER, 6379);
+                Jedis jedis = new Jedis(JEDIS_SERVER,6379);
 
                 //jedis.auth("sensomate_123#");
 
@@ -305,7 +310,7 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
                 System.out.println("publishing");
 
                 // jsonstring here...
-                jedis.publish(JEDIS_CHANNEL, json);
+                jedis.publish(JEDIS_CHANNEL, mCurrentDegree+"");
                 //jedis.auth("sensomate_123#");
                 System.out.println("published, closing publishing connection");
                 jedis.quit();
@@ -317,5 +322,8 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
                 e.printStackTrace();
             }
         }
+    }
+    public void start(View v){
+    	startService(new Intent(this, MyService.class));
     }
 }
